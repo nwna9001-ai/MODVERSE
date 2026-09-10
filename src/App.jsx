@@ -1,16 +1,14 @@
+cat << 'EOF' > src/App.jsx
 import React, { useEffect, useState } from 'react';
 import { App as CapacitorApp } from '@capacitor/app';
 import { supabase } from './services/supabase';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
-  const [user, setUser] = useState(null);
-  const [mods, setMods] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('الكل');
 
   useEffect(() => {
-    // Hardware Back Button Handler for Native Android Feel
     const backListener = CapacitorApp.addListener('backButton', ({ canGoBack }) => {
       if (activeTab !== 'home') {
         setActiveTab('home');
@@ -21,143 +19,121 @@ export default function App() {
       }
     });
 
-    // Check user session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
     return () => {
       backListener.then(h => h.remove());
     };
   }, [activeTab]);
 
   return (
-    <div className="min-h-screen bg-[#0f0d1a] text-slate-100 flex flex-col font-sans dir-rtl" dir="rtl">
+    <div style={{ backgroundColor: '#0f0d1a', color: '#f8fafc', minHeight: '100vh', fontFamily: 'sans-serif', direction: 'rtl', paddingBottom: '80px' }}>
+      
       {/* Header */}
-      <header className="p-4 bg-[#171326] border-b border-purple-900/40 flex justify-between items-center sticky top-0 z-50 shadow-lg shadow-purple-950/20">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🔥</span>
-          <h1 className="text-2xl font-black tracking-wider bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-500 bg-clip-text text-transparent">
+      <header style={{ backgroundColor: '#171326', padding: '16px', borderBottom: '1px solid rgba(147, 51, 234, 0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '22px' }}>🔥</span>
+          <h1 style={{ fontSize: '20px', fontWeight: '900', background: 'linear-gradient(to right, #c084fc, #e879f9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>
             MODVERSE
           </h1>
         </div>
-        <span className="text-xs px-2.5 py-1 bg-purple-950/80 text-purple-300 border border-purple-700/50 rounded-full font-mono">
+        <span style={{ fontSize: '11px', padding: '3px 10px', backgroundColor: '#2e1065', color: '#d8b4fe', border: '1px solid #7e22ce', borderRadius: '12px', fontWeight: 'bold' }}>
           Android 15
         </span>
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 p-4 pb-24 max-w-lg mx-auto w-full">
-        {/* Search & Categories */}
-        <div className="mb-6 space-y-3">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="بحث عن مودات، سكنات، خرائط..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full py-3 pr-10 pl-4 bg-[#1c172e] border border-purple-800/40 rounded-xl text-sm focus:outline-none focus:border-purple-500 text-purple-100 placeholder-slate-500 transition"
-            />
-            <span className="absolute right-3 top-3.5 text-slate-400">🔍</span>
-          </div>
+      <main style={{ padding: '16px', maxWidth: '500px', margin: '0 auto' }}>
+        
+        {/* Search */}
+        <div style={{ marginBottom: '16px' }}>
+          <input
+            type="text"
+            placeholder="بحث عن مودات، سكنات، خرائط..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ width: '100%', padding: '12px 16px', backgroundColor: '#1c172e', border: '1px solid rgba(147, 51, 234, 0.4)', borderRadius: '12px', color: '#fff', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+          />
+        </div>
 
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-            {['الكل', 'Mods', 'Skins', 'Worlds', 'Textures'].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
-                  selectedCategory === cat
-                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
-                    : 'bg-[#1c172e] text-slate-400 border border-purple-900/30 hover:text-white'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+        {/* Categories */}
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '16px' }}>
+          {['الكل', 'Mods', 'Skins', 'Worlds', 'Textures'].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '10px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                whiteSpace: 'nowrap',
+                border: 'none',
+                cursor: 'pointer',
+                backgroundColor: selectedCategory === cat ? '#9333ea' : '#1c172e',
+                color: selectedCategory === cat ? '#ffffff' : '#94a3b8',
+                boxShadow: selectedCategory === cat ? '0 0 12px rgba(147, 51, 234, 0.5)' : 'none'
+              }}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
 
         {/* Tab Content */}
         {activeTab === 'home' && (
-          <div className="space-y-4">
-            <div className="p-5 bg-gradient-to-br from-purple-900/40 via-[#171326] to-[#0f0d1a] border border-purple-800/40 rounded-2xl shadow-xl">
-              <div className="flex justify-between items-start mb-2">
-                <span className="px-2.5 py-0.5 bg-purple-500/20 text-purple-300 text-[10px] font-bold rounded-md border border-purple-500/30">مميز</span>
-                <span className="text-amber-400 text-xs font-bold">⭐ 4.9</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ backgroundColor: '#171326', border: '1px solid rgba(147, 51, 234, 0.3)', borderRadius: '16px', padding: '18px', boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ backgroundColor: 'rgba(147, 51, 234, 0.2)', color: '#d8b4fe', fontSize: '10px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '6px', border: '1px solid rgba(147, 51, 234, 0.4)' }}>مميز</span>
+                <span style={{ color: '#fbbf24', fontSize: '12px', fontWeight: 'bold' }}>⭐ 4.9</span>
               </div>
-              <h2 className="text-xl font-bold mb-1 text-white">Dragon Knights Addon v2.0</h2>
-              <p className="text-slate-400 text-xs mb-4 leading-relaxed">أضف تنانين وسيوف خرافية لعالمك مع تأثيرات صوتية ثلاثية الأبعاد وصراعات ملحمية!</p>
-              <button className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 font-bold rounded-xl text-sm transition shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2">
-                <span>⚡ تحميل المود مباشر</span>
+              <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#fff', margin: '0 0 6px 0' }}>Dragon Knights Addon v2.0</h2>
+              <p style={{ color: '#94a3b8', fontSize: '12px', lineHeight: '1.6', margin: '0 0 16px 0' }}>أضف تنانين وسيوف خرافية لعالمك مع تأثيرات صوتية ثلاثية الأبعاد وصراعات ملحمية!</p>
+              <button style={{ width: '100%', padding: '12px', background: 'linear-gradient(to right, #9333ea, #c084fc)', border: 'none', borderRadius: '12px', color: '#fff', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(147, 51, 234, 0.4)' }}>
+                ⚡ تحميل المود مباشر
               </button>
             </div>
           </div>
         )}
 
         {activeTab === 'favorites' && (
-          <div className="p-8 text-center bg-[#171326] border border-purple-900/30 rounded-2xl">
-            <span className="text-4xl block mb-2">❤️</span>
-            <h3 className="text-lg font-bold text-slate-200">المفضلة فارغة</h3>
-            <p className="text-xs text-slate-400 mt-1">اضغط على زر القلب عند أي مود لحفظه هنا.</p>
+          <div style={{ padding: '32px', textAlign: 'center', backgroundColor: '#171326', border: '1px solid rgba(147, 51, 234, 0.2)', borderRadius: '16px' }}>
+            <span style={{ fontSize: '36px', display: 'block', marginBottom: '8px' }}>❤️</span>
+            <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#f8fafc', margin: 0 }}>المفضلة فارغة</h3>
+            <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>اضغط على زر القلب عند أي مود لحفظه هنا.</p>
           </div>
         )}
 
         {activeTab === 'admin' && (
-          <div className="p-5 bg-[#171326] border border-purple-800/40 rounded-2xl space-y-4">
-            <h3 className="text-lg font-bold text-purple-300 flex items-center gap-2">
-              🛡️ لوحة التحكم (Admin Panel)
-            </h3>
-            <p className="text-xs text-slate-400">رفع مود جديد مباشرة لقاعدة بيانات Supabase Storage</p>
-            
-            <div className="space-y-3 pt-2">
-              <input type="text" placeholder="عنوان المود" className="w-full p-2.5 bg-[#0f0d1a] border border-purple-900/50 rounded-lg text-xs" />
-              <textarea placeholder="وصف المود..." className="w-full p-2.5 bg-[#0f0d1a] border border-purple-900/50 rounded-lg text-xs h-20"></textarea>
-              
-              <div className="border-2 border-dashed border-purple-800/50 rounded-xl p-4 text-center cursor-pointer hover:border-purple-500 transition">
-                <span className="text-xs text-slate-400">اختر ملف المود (.mcaddon / .zip)</span>
-              </div>
-
-              <button className="w-full py-2.5 bg-purple-600 font-bold text-xs rounded-lg hover:bg-purple-500 transition">
-                رفع إلى MODVERSE
-              </button>
-            </div>
+          <div style={{ padding: '20px', backgroundColor: '#171326', border: '1px solid rgba(147, 51, 234, 0.3)', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#d8b4fe', margin: 0 }}>🛡️ لوحة التحكم (Admin Panel)</h3>
+            <input type="text" placeholder="عنوان المود" style={{ width: '100%', padding: '10px', backgroundColor: '#0f0d1a', border: '1px solid rgba(147, 51, 234, 0.3)', borderRadius: '8px', color: '#fff', fontSize: '12px', boxSizing: 'border-box' }} />
+            <textarea placeholder="وصف المود..." style={{ width: '100%', padding: '10px', backgroundColor: '#0f0d1a', border: '1px solid rgba(147, 51, 234, 0.3)', borderRadius: '8px', color: '#fff', fontSize: '12px', height: '70px', boxSizing: 'border-box' }}></textarea>
+            <button style={{ width: '100%', padding: '10px', backgroundColor: '#9333ea', border: 'none', borderRadius: '8px', color: '#fff', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
+              رفع إلى MODVERSE
+            </button>
           </div>
         )}
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#171326]/95 backdrop-blur-md border-t border-purple-900/40 p-3 flex justify-around items-center z-50">
-        <button
-          onClick={() => setActiveTab('home')}
-          className={`flex flex-col items-center gap-1 text-xs font-semibold ${
-            activeTab === 'home' ? 'text-purple-400' : 'text-slate-500'
-          }`}
-        >
-          <span className="text-lg">🏠</span>
+      {/* Bottom Nav */}
+      <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: '#171326', borderTop: '1px solid rgba(147, 51, 234, 0.3)', padding: '10px', display: 'flex', justifyContent: 'space-around', zIndex: 50 }}>
+        <button onClick={() => setActiveTab('home')} style={{ background: 'none', border: 'none', color: activeTab === 'home' ? '#c084fc' : '#64748b', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>
+          <span style={{ fontSize: '18px' }}>🏠</span>
           <span>الرئيسية</span>
         </button>
 
-        <button
-          onClick={() => setActiveTab('favorites')}
-          className={`flex flex-col items-center gap-1 text-xs font-semibold ${
-            activeTab === 'favorites' ? 'text-purple-400' : 'text-slate-500'
-          }`}
-        >
-          <span className="text-lg">❤️</span>
+        <button onClick={() => setActiveTab('favorites')} style={{ background: 'none', border: 'none', color: activeTab === 'favorites' ? '#c084fc' : '#64748b', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>
+          <span style={{ fontSize: '18px' }}>❤️</span>
           <span>المفضلة</span>
         </button>
 
-        <button
-          onClick={() => setActiveTab('admin')}
-          className={`flex flex-col items-center gap-1 text-xs font-semibold ${
-            activeTab === 'admin' ? 'text-purple-400' : 'text-slate-500'
-          }`}
-        >
-          <span className="text-lg">🛡️</span>
+        <button onClick={() => setActiveTab('admin')} style={{ background: 'none', border: 'none', color: activeTab === 'admin' ? '#c084fc' : '#64748b', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>
+          <span style={{ fontSize: '18px' }}>🛡️</span>
           <span>الأدمن</span>
         </button>
       </nav>
     </div>
   );
 }
+EOF
+
